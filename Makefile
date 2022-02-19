@@ -1,6 +1,7 @@
 NAME = so_long
 SRCS= main.c
 OBJS=$(SRCS:%.c=%.o)
+LIBFT = libft
 
 CC=clang
 CFLAGS= -Wall -Werror -Wextra
@@ -12,7 +13,9 @@ all : $(NAME)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(NAME) : $(OBJS)
-	$(CC) $(CFLAGS) $(CLIB) $(SRCS) -o $(NAME)
+	$(MAKE) all -C $(LIBFT)/
+	cp $(LIBFT)/$(LIBFT).a $(LIBFT).a
+	$(CC) $(CFLAGS) $(CLIB) $(SRCS) libft.a -o $(NAME)
 	install_name_tool -change libmlx.dylib mlx/libmlx.dylib $(NAME)
 
 clean :

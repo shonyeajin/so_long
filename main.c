@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "libft/libft.h"
 
 #define TILE_SIZE 60
 
@@ -14,6 +15,7 @@ typedef struct	s_map
 	int rows;
 	int curr_c;
 	int curr_r;
+	int curr_move;
 }				t_map;
 
 typedef struct	s_game
@@ -22,6 +24,12 @@ typedef struct	s_game
 	void *win;
 	t_map *map;
 }				t_game;
+
+void print_curr_move(t_map *map)
+{
+	map->curr_move+=1;
+	ft_putnbr_fd(map->curr_move, 1);
+}
 
 int key_event_func(int keycode, t_game *game)
 {
@@ -45,6 +53,13 @@ int key_event_func(int keycode, t_game *game)
 			map->curr_r-=1;
 			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
 			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+			//check player get money
+			if (map->map[map->curr_r][map->curr_c]=='c')
+				write(1, "You got a collection.\n", 22);
+			ft_putstr_fd("Number of movement:", 1);
+			print_curr_move(map);
+			ft_putstr_fd("\n----------------------------\n",1);
+
 		}
 	}
 	else if (keycode ==0)//a
@@ -56,6 +71,13 @@ int key_event_func(int keycode, t_game *game)
 			map->curr_c-=1;
 			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
 			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+			//check player get money
+			if (map->map[map->curr_r][map->curr_c]=='c')
+				write(1, "You got a collection.\n", 22);
+			ft_putstr_fd("Number of movement:", 1);
+			print_curr_move(map);
+			ft_putstr_fd("\n----------------------------\n",1);
+
 		}
 	}
 	else if (keycode ==1)//s
@@ -67,6 +89,12 @@ int key_event_func(int keycode, t_game *game)
 			map->curr_r+=1;
 			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
 			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+			//check player get money
+			if (map->map[map->curr_r][map->curr_c]=='c')
+				write(1, "You got a collection.\n", 22);
+			ft_putstr_fd("Number of movement:", 1);
+			print_curr_move(map);
+			ft_putstr_fd("\n----------------------------\n",1);
 		}
 
 	}
@@ -79,7 +107,20 @@ int key_event_func(int keycode, t_game *game)
 			map->curr_c+=1;
 			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
 			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+			//check player get money
+			if (map->map[map->curr_r][map->curr_c]=='c')
+				write(1, "You got a collection.\n", 22);
+			ft_putstr_fd("Number of movement:", 1);
+			print_curr_move(map);
+			ft_putstr_fd("\n----------------------------\n",1);
 		}
+	}
+	//check player will exit
+	if (map->map[map->curr_r][map->curr_c]=='e')
+	{
+		write(1,"Game Success!\n", 14);
+		mlx_destroy_window(game->mlx, game->win);
+		exit(0);
 	}
 	return (0);
 }
@@ -117,8 +158,6 @@ void draw_map(t_map *map, t_game *game)
 			else if (temp[j]=='e')
 				img=mlx_xpm_file_to_image(game->mlx,"./exit.xpm", &width, &height);
 
-
-
 			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*j, TILE_SIZE*i);
 
 			j++;
@@ -151,6 +190,10 @@ int main(void)
 	game->map->rows=4;
 	game->map->curr_r=2;
 	game->map->curr_c=1;
+	//init
+	game->map->curr_move=0;
+
+
 
 	draw_map(game->map, game);
 
