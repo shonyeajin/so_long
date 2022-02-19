@@ -1,75 +1,161 @@
 #include <mlx.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <stdio.h>
 #include <unistd.h>
 
-typedef struct	s_data
-{
-	void *img;
-	char *addr;
-	int bits_per_pixel;
-	int line_length;
-	int endian;
-}				t_data;
+#define TILE_SIZE 60
 
-typedef struct	s_vars
+
+typedef struct	s_map
+{
+	char **map;
+	int cols;
+	int rows;
+	int curr_c;
+	int curr_r;
+}				t_map;
+
+typedef struct	s_game
 {
 	void *mlx;
 	void *win;
-}				t_vars;
+	t_map *map;
+}				t_game;
 
-int exit_hook()
+int key_event_func(int keycode, t_game *game)
 {
-	exit(0);
-}
+	t_map *map;
+	void *img;
+	int width;
+	int height;
 
-//esc key press event
-int key_hook(int keycode, t_vars *vars)
-{
-	if (keycode ==53)
+	map = game->map;
+	if (keycode == 53)
 	{
-		mlx_destroy_window(vars->mlx, vars->win);
+		mlx_destroy_window(game->mlx, game->win);
 		exit(0);
+	}
+	else if (keycode ==13)//w
+	{
+		if ((0 < map->curr_r - 1) && (map->curr_r - 1 < map->rows-1) && map->map[map->curr_r-1][map->curr_c]!='1')
+		{
+			img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+			map->curr_r-=1;
+			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
+			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+		}
+	}
+	else if (keycode ==0)//a
+	{
+		if ((0 < map->curr_c - 1) && (map->curr_c - 1 < map->cols-1) && map->map[map->curr_r][map->curr_c-1]!='1')
+		{
+			img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+			map->curr_c-=1;
+			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
+			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+		}
+	}
+	else if (keycode ==1)//s
+	{
+		if ((0 < map->curr_r + 1) && (map->curr_r + 1 < map->rows-1) && map->map[map->curr_r+1][map->curr_c]!='1')
+		{
+			img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+			map->curr_r+=1;
+			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
+			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+		}
+
+	}
+	else if (keycode ==2)//d
+	{
+		if ((0 < map->curr_c + 1) && (map->curr_c + 1 < map->cols-1) && map->map[map->curr_r][map->curr_c+1]!='1')
+		{
+			img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+			map->curr_c+=1;
+			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
+			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+		}
 	}
 	return (0);
 }
 
-//원하는 좌표에 해당하는 주소에 color값을 넣는 함수
-void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
+int destroy_event_func(t_game *game)
 {
-	char *dst;
-
-	dst=data->addr+(y * data->line_length + x * (data->bits_per_pixel / 8));
-	*(unsigned int*)dst = color;
+	mlx_destroy_window(game->mlx, game->win);
+	exit(0);
 }
 
-int main(void)
+void draw_map(t_map *map, t_game *game)
 {
-	t_vars vars;
-	t_data image;
-
-	vars.mlx=mlx_init();
-	vars.win=mlx_new_window(vars.mlx, 500, 500, "Hellow World!");
-	image.img=mlx_new_image(vars.mlx,500, 500);
-	image.addr=mlx_get_data_addr(image.img, &image.bits_per_pixel, &image.line_length, &image.endian);
-
 	int i;
+	int j;
+	char *temp;
+	void *img;
+	int width;
+	int height;
+
 	i=0;
-	while (i < 500)
+	while (i< map->rows)
 	{
-		int j;
+		temp = map->map[i];
 		j=0;
-		while(j < 500)
+		while (j < map->cols)
 		{
-			//mlx_pixel_put(mlx_ptr,win_ptr, i,j, 0x00FFFFFF);
-			my_mlx_pixel_put(&image,i,j, 0x00FFFFFF);
+			if (temp[j]=='1')
+				img=mlx_xpm_file_to_image(game->mlx,"./wall.xpm", &width, &height);
+			else if (temp[j]=='0')
+				img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+			else if (temp[j]=='p')
+				img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
+			else if (temp[j]=='c')
+				img=mlx_xpm_file_to_image(game->mlx,"./money.xpm", &width, &height);
+			else if (temp[j]=='e')
+				img=mlx_xpm_file_to_image(game->mlx,"./exit.xpm", &width, &height);
+
+
+
+			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*j, TILE_SIZE*i);
+
 			j++;
 		}
 		i++;
 	}
-	mlx_put_image_to_window(vars.mlx, vars.win, image.img, 0, 0);
-	mlx_key_hook(vars.win, key_hook, &vars);//esc key press event
-	mlx_hook(vars.win, 17, 0, exit_hook, 0);// close button press event
-	mlx_loop(vars.mlx);
+}
 
+int main(void)
+{
+	t_game *game;
+
+	game=malloc(sizeof(t_game));
+	if (!game)
+	{
+		write(1,"exit error\n",11);
+	}
+	game->mlx = mlx_init();
+	game->win = mlx_new_window(game->mlx, TILE_SIZE * 5,TILE_SIZE * 4,"yshon's game");
+
+
+	//init image
+	game->map=malloc(sizeof(t_map));
+	game->map->map=malloc(sizeof(char*)*4);
+	game->map->map[0]="11111";
+	game->map->map[1]="100c1";
+	game->map->map[2]="1p0e1";
+	game->map->map[3]="11111";
+	game->map->cols=5;
+	game->map->rows=4;
+	game->map->curr_r=2;
+	game->map->curr_c=1;
+
+	draw_map(game->map, game);
+
+	mlx_hook(game->win, 2, 0, &key_event_func, game);
+	mlx_hook(game->win, 17, 0, &destroy_event_func, game);
+	mlx_loop(game->mlx);
 	return (0);
 }
