@@ -31,9 +31,20 @@ int key_event_func(int keycode, t_game *game)
 					mlx_destroy_window(game->mlx, game->win);
 					exit(0);
 				}
-				return (0);
+				else
+				{
+					img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+					mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+					map->curr_r-=1;
+					img=mlx_xpm_file_to_image(game->mlx, "./exit_human.xpm", &width, &height);
+					mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+					return (0);
+				}
 			}
-			img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+			if (map->map[map->curr_r][map->curr_c]=='E')
+				img=mlx_xpm_file_to_image(game->mlx, "./exit.xpm", &width, &height);
+			else
+				img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
 			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
 			map->curr_r-=1;
 			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
@@ -64,10 +75,21 @@ int key_event_func(int keycode, t_game *game)
 					mlx_destroy_window(game->mlx, game->win);
 					exit(0);
 				}
-				return (0);
+				else
+				{
+					img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+					mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+					map->curr_c-=1;
+					img=mlx_xpm_file_to_image(game->mlx, "./exit_human.xpm", &width, &height);
+					mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+					return (0);
+				}
 			}
 
-			img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+			if (map->map[map->curr_r][map->curr_c]=='E')
+				img=mlx_xpm_file_to_image(game->mlx, "./exit.xpm", &width, &height);
+			else
+				img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
 			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
 			map->curr_c-=1;
 			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
@@ -99,10 +121,20 @@ int key_event_func(int keycode, t_game *game)
 					mlx_destroy_window(game->mlx, game->win);
 					exit(0);
 				}
-				return (0);
+				else
+				{
+					img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+					mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+					map->curr_r+=1;
+					img=mlx_xpm_file_to_image(game->mlx, "./exit_human.xpm", &width, &height);
+					mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+					return (0);
+				}
 			}
-
-			img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+			if (map->map[map->curr_r][map->curr_c]=='E')
+				img=mlx_xpm_file_to_image(game->mlx, "./exit.xpm", &width, &height);
+			else
+				img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
 			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
 			map->curr_r+=1;
 			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
@@ -134,10 +166,21 @@ int key_event_func(int keycode, t_game *game)
 					mlx_destroy_window(game->mlx, game->win);
 					exit(0);
 				}
-				return (0);
+				else
+				{
+					img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+					mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+					map->curr_c+=1;
+					img=mlx_xpm_file_to_image(game->mlx, "./exit_human.xpm", &width, &height);
+					mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
+					return (0);
+				}
 			}
 
-			img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
+			if (map->map[map->curr_r][map->curr_c]=='E')
+				img=mlx_xpm_file_to_image(game->mlx, "./exit.xpm", &width, &height);
+			else
+				img=mlx_xpm_file_to_image(game->mlx,"./empty.xpm", &width, &height);
 			mlx_put_image_to_window(game->mlx, game->win, img, TILE_SIZE*map->curr_c, TILE_SIZE*map->curr_r);
 			map->curr_c+=1;
 			img=mlx_xpm_file_to_image(game->mlx,"./human.xpm", &width, &height);
@@ -156,15 +199,7 @@ int key_event_func(int keycode, t_game *game)
 			ft_putstr_fd("\n----------------------------\n",1);
 		}
 	}
-	//check player will exit
-	/*
-	if (map->map[map->curr_r][map->curr_c]=='E' && game->map->collect==0)
-	{
-		write(1,"Game Success!\n", 14);
-		mlx_destroy_window(game->mlx, game->win);
-		exit(0);
-	}
-	*/
+
 	return (0);
 }
 
@@ -382,18 +417,6 @@ int main(int argc, char *argv[])
 	}
 	
 
-	//init image
-	/*
-	game->map->map=malloc(sizeof(char*)*4);
-	game->map->map[0]="11111";
-	game->map->map[1]="100c1";
-	game->map->map[2]="1p0e1";
-	game->map->map[3]="11111";
-	game->map->cols=5;
-	game->map->rows=4;
-	game->map->curr_r=2;
-	game->map->curr_c=1;
-	*/
 	//init
 	game->map->curr_move=0;
 
