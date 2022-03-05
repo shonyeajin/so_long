@@ -27,4 +27,11 @@ typedef struct	s_game
 	t_map *map;
 }				t_game;
 
+typedef struct	s_flag
+{
+	int cflag;
+	int pflag;
+	int eflag;
+}				t_flag;
+
 #endif

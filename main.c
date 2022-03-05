@@ -6,23 +6,25 @@ void	print_curr_move(t_map *map)
 	ft_putnbr_fd(map->curr_move, 1);
 }
 
-void move_to_exit(t_game *game, int *curr, int val)
+void	move_to_exit_sub(t_game *game, t_map *map)
 {
-	t_map *map;
+	ft_putstr_fd("Number of movement:", 1);
+	print_curr_move(map);
+	ft_putstr_fd("\n----------------------------\nGame Success!\n", 1);
+	mlx_destroy_window(game->mlx, game->win);
+	exit(0);
+}
+
+void	move_to_exit(t_game *game, int *curr, int val)
+{
+	t_map	*map;
 	void	*img;
 	int		width;
 	int		height;
 
 	map = game->map;
 	if (map->collect == 0)
-	{
-		ft_putstr_fd("Number of movement:", 1);
-		print_curr_move(map);
-		ft_putstr_fd("\n----------------------------\n", 1);
-		write(1, "Game Success!\n", 14);
-		mlx_destroy_window(game->mlx, game->win);
-		exit(0);
-	}
+		move_to_exit_sub(game, map);
 	else
 	{
 		img = mlx_xpm_file_to_image(game->mlx,
@@ -40,12 +42,32 @@ void move_to_exit(t_game *game, int *curr, int val)
 	}
 }
 
-void	w_func(t_game *game)
+void	move_animation(t_game *game, int *curr, int val)
 {
-	t_map *map;
+	t_map	*map;
 	void	*img;
 	int		width;
 	int		height;
+
+	map = game->map;
+	if (map->map[map->curr_r][map->curr_c] == 'E')
+		img = mlx_xpm_file_to_image(game->mlx,
+				"./images/exit.xpm", &width, &height);
+	else
+		img = mlx_xpm_file_to_image(game->mlx,
+				"./images/empty.xpm", &width, &height);
+	mlx_put_image_to_window(game->mlx, game->win, img,
+		TILE_SIZE * map->curr_c, TILE_SIZE * map->curr_r);
+	*curr = val;
+	img = mlx_xpm_file_to_image(game->mlx,
+			"./images/human.xpm", &width, &height);
+	mlx_put_image_to_window(game->mlx, game->win,
+		img, TILE_SIZE * map->curr_c, TILE_SIZE * map->curr_r);
+}
+
+void	w_func(t_game *game)
+{
+	t_map	*map;
 
 	map = game->map;
 	if ((0 < map->curr_r - 1) && (map->curr_r - 1 < map->rows - 1)
@@ -56,19 +78,7 @@ void	w_func(t_game *game)
 			move_to_exit(game, &(map->curr_r), map->curr_r - 1);
 			return ;
 		}
-		if (map->map[map->curr_r][map->curr_c] == 'E')
-			img = mlx_xpm_file_to_image(game->mlx,
-					"./images/exit.xpm", &width, &height);
-		else
-			img = mlx_xpm_file_to_image(game->mlx,
-					"./images/empty.xpm", &width, &height);
-		mlx_put_image_to_window(game->mlx, game->win, img,
-			TILE_SIZE * map->curr_c, TILE_SIZE * map->curr_r);
-		map->curr_r -= 1;
-		img = mlx_xpm_file_to_image(game->mlx,
-				"./images/human.xpm", &width, &height);
-		mlx_put_image_to_window(game->mlx, game->win,
-			img, TILE_SIZE * map->curr_c, TILE_SIZE * map->curr_r);
+		move_animation(game, &(map->curr_r), map->curr_r - 1);
 		if (map->map[map->curr_r][map->curr_c] == 'C')
 		{
 			write(1, "You got a collection.\n", 22);
@@ -83,10 +93,7 @@ void	w_func(t_game *game)
 
 void	s_func(t_game *game)
 {
-	t_map *map;
-	void	*img;
-	int		width;
-	int		height;
+	t_map	*map;
 
 	map = game->map;
 	if ((0 < map->curr_r + 1) && (map->curr_r + 1 < map->rows - 1)
@@ -97,19 +104,7 @@ void	s_func(t_game *game)
 			move_to_exit(game, &(map->curr_r), map->curr_r + 1);
 			return ;
 		}
-		if (map->map[map->curr_r][map->curr_c] == 'E')
-			img = mlx_xpm_file_to_image(game->mlx,
-					"./images/exit.xpm", &width, &height);
-		else
-			img = mlx_xpm_file_to_image(game->mlx,
-					"./images/empty.xpm", &width, &height);
-		mlx_put_image_to_window(game->mlx, game->win,
-			img, TILE_SIZE * map->curr_c, TILE_SIZE * map->curr_r);
-		map->curr_r += 1;
-		img = mlx_xpm_file_to_image(game->mlx,
-				"./images/human.xpm", &width, &height);
-		mlx_put_image_to_window(game->mlx, game->win,
-			img, TILE_SIZE * map->curr_c, TILE_SIZE * map->curr_r);
+		move_animation(game, &(map->curr_r), map->curr_r + 1);
 		if (map->map[map->curr_r][map->curr_c] == 'C')
 		{
 			write(1, "You got a collection.\n", 22);
@@ -124,10 +119,7 @@ void	s_func(t_game *game)
 
 void	a_func(t_game *game)
 {
-	t_map *map;
-	void	*img;
-	int		width;
-	int		height;
+	t_map	*map;
 
 	map = game->map;
 	if ((0 < map->curr_c - 1) && (map->curr_c - 1 < map->cols - 1)
@@ -138,19 +130,7 @@ void	a_func(t_game *game)
 			move_to_exit(game, &(map->curr_c), map->curr_c - 1);
 			return ;
 		}
-		if (map->map[map->curr_r][map->curr_c] == 'E')
-			img = mlx_xpm_file_to_image(game->mlx,
-					"./images/exit.xpm", &width, &height);
-		else
-			img = mlx_xpm_file_to_image(game->mlx,
-					"./images/empty.xpm", &width, &height);
-		mlx_put_image_to_window(game->mlx, game->win,
-			img, TILE_SIZE * map->curr_c, TILE_SIZE * map->curr_r);
-		map->curr_c -= 1;
-		img = mlx_xpm_file_to_image(game->mlx,
-				"./images/human.xpm", &width, &height);
-		mlx_put_image_to_window(game->mlx, game->win,
-			img, TILE_SIZE * map->curr_c, TILE_SIZE * map->curr_r);
+		move_animation(game, &(map->curr_c), map->curr_c - 1);
 		if (map->map[map->curr_r][map->curr_c] == 'C')
 		{
 			write(1, "You got a collection.\n", 22);
@@ -165,10 +145,7 @@ void	a_func(t_game *game)
 
 void	d_func(t_game *game)
 {
-	t_map *map;
-	void	*img;
-	int		width;
-	int		height;
+	t_map	*map;
 
 	map = game->map;
 	if ((0 < map->curr_c + 1) && (map->curr_c + 1 < map->cols - 1)
@@ -179,19 +156,7 @@ void	d_func(t_game *game)
 			move_to_exit(game, &(map->curr_c), map->curr_c + 1);
 			return ;
 		}
-		if (map->map[map->curr_r][map->curr_c] == 'E')
-			img = mlx_xpm_file_to_image(game->mlx,
-					"./images/exit.xpm", &width, &height);
-		else
-			img = mlx_xpm_file_to_image(game->mlx,
-					"./images/empty.xpm", &width, &height);
-		mlx_put_image_to_window(game->mlx, game->win,
-			img, TILE_SIZE * map->curr_c, TILE_SIZE * map->curr_r);
-		map->curr_c += 1;
-		img = mlx_xpm_file_to_image(game->mlx, "./images/human.xpm",
-				&width, &height);
-		mlx_put_image_to_window(game->mlx, game->win,
-			img, TILE_SIZE * map->curr_c, TILE_SIZE * map->curr_r);
+		move_animation(game, &(map->curr_c), map->curr_c + 1);
 		if (map->map[map->curr_r][map->curr_c] == 'C')
 		{
 			write(1, "You got a collection.\n", 22);
@@ -228,14 +193,36 @@ int	destroy_event_func(t_game *game)
 	exit(0);
 }
 
+void	draw_map_element(t_game *game, char c, int i, int j)
+{
+	void	*img;
+	int		width;
+	int		height;
+
+	if (c == '1')
+		img = mlx_xpm_file_to_image(game->mlx,
+				"./images/wall.xpm", &width, &height);
+	else if (c == '0')
+		img = mlx_xpm_file_to_image(game->mlx,
+				"./images/empty.xpm", &width, &height);
+	else if (c == 'P')
+		img = mlx_xpm_file_to_image(game->mlx,
+				"./images/human.xpm", &width, &height);
+	else if (c == 'C')
+		img = mlx_xpm_file_to_image(game->mlx,
+				"./images/money.xpm", &width, &height);
+	else
+		img = mlx_xpm_file_to_image(game->mlx,
+				"./images/exit.xpm", &width, &height);
+	mlx_put_image_to_window(game->mlx, game->win,
+		img, TILE_SIZE * j, TILE_SIZE * i);
+}
+
 void	draw_map(t_map *map, t_game *game)
 {
 	int		i;
 	int		j;
 	char	*temp;
-	void	*img;
-	int		width;
-	int		height;
 
 	i = 0;
 	while (i < map->rows)
@@ -244,23 +231,7 @@ void	draw_map(t_map *map, t_game *game)
 		j = 0;
 		while (j < map->cols)
 		{
-			if (temp[j] == '1')
-				img = mlx_xpm_file_to_image(game->mlx,
-						"./images/wall.xpm", &width, &height);
-			else if (temp[j] == '0')
-				img = mlx_xpm_file_to_image(game->mlx,
-						"./images/empty.xpm", &width, &height);
-			else if (temp[j] == 'P')
-				img = mlx_xpm_file_to_image(game->mlx,
-						"./images/human.xpm", &width, &height);
-			else if (temp[j] == 'C')
-				img = mlx_xpm_file_to_image(game->mlx,
-						"./images/money.xpm", &width, &height);
-			else if (temp[j] == 'E')
-				img = mlx_xpm_file_to_image(game->mlx,
-						"./images/exit.xpm", &width, &height);
-			mlx_put_image_to_window(game->mlx, game->win,
-				img, TILE_SIZE * j, TILE_SIZE * i);
+			draw_map_element(game, temp[j], i, j);
 			j++;
 		}
 		i++;
@@ -296,66 +267,58 @@ void	read_map(int fd, t_map *map)
 	}
 }
 
-int	check_map(t_map *map)
+int	init_variable(t_flag *flag, char *s, t_map *map)
 {
-	int		i;
-	int		j;
-	char	*s;
-	int		cflag;
-	int		pflag;
-	int		eflag;
+	int	i;
 
-	pflag = 0;
-	eflag = 0;
-	cflag = 0;
-	s = map->map[0];
 	i = 0;
+	flag->pflag = 0;
+	flag->eflag = 0;
+	flag->cflag = 0;
 	while (*s)
 	{
-		if (*s == 'C')
-			cflag = 1;
-		else if (*s == 'E')
-			eflag = 1;
-		else if (*s == 'P')
-			pflag++;
-		else if (*s != '1' && *s != '0' && *s != 'E' && *s != 'C' && *s != 'P')
+		if (*s != '1' && *s != '0' && *s != 'E' && *s != 'C' && *s != 'P')
 			return (0);
 		s++;
 		i++;
 	}
 	map->cols = i;
-	j = 0;
-	while (j < map->rows)
+	return (1);
+}
+
+int	check_row(char *s, t_flag *flag, t_map *map, int j)
+{
+	int	i;
+
+	i = 0;
+	while (*s)
 	{
-		s = map->map[j];
-		i = 0;
-		while (*s)
+		if (*s == 'C')
+			(flag->cflag)++;
+		else if (*s == 'E')
+			flag->eflag = 1;
+		else if (*s == 'P')
 		{
-			if (*s == 'C')
-				cflag++;
-			else if (*s == 'E')
-				eflag = 1;
-			else if (*s == 'P')
-			{
-				pflag++;
-				map->curr_c = i;
-				map->curr_r = j;
-			}
-			else if (*s != '1' && *s != '0' && *s != 'E'
-				&& *s != 'C' && *s != 'P')
-				return (0);
-			i++;
-			s++;
+			(flag->pflag)++;
+			map->curr_c = i;
+			map->curr_r = j;
 		}
-		if (i != map->cols)
+		else if (*s != '1' && *s != '0' && *s != 'E'
+			&& *s != 'C' && *s != 'P')
 			return (0);
-		j++;
+		i++;
+		s++;
 	}
-	if (eflag == 0 || cflag == 0 || pflag != 1)
+	if (i != map->cols)
 		return (0);
-	map->collect = cflag;
-	if (map->cols < 3 || map->rows < 3)
-		return (0);
+	return (1);
+}
+
+int	check_wall(t_map *map)
+{
+	int		i;
+	char	*s;
+
 	s = map->map[0];
 	while (*s)
 	{
@@ -377,6 +340,30 @@ int	check_map(t_map *map)
 			return (0);
 		s++;
 	}
+	return (1);
+}
+
+int	check_map(t_map *map)
+{
+	int		j;
+	t_flag	flag;
+
+	if (!init_variable(&flag, map->map[0], map))
+		return (0);
+	j = 0;
+	while (j < map->rows)
+	{
+		if (!check_row(map->map[j], &flag, map, j))
+			return (0);
+		j++;
+	}
+	if (flag.eflag == 0 || flag.cflag == 0 || flag.pflag != 1)
+		return (0);
+	map->collect = flag.cflag;
+	if (map->cols < 3 || map->rows < 3)
+		return (0);
+	if (!check_wall(map))
+		return (0);
 	return (1);
 }
 
