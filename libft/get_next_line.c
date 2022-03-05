@@ -1,12 +1,13 @@
 #include "libft.h"
 
-static int check_newline(char **line, char **dummy, char **buf)
+static int	check_newline(char **line, char **dummy, char **buf)
 {
-	char *str;
-	char *p;
+	char	*str;
+	char	*p;
 
 	str = *dummy;
-	if (!(p = ft_strchr(*dummy, '\n')))
+	p = ft_strchr(*dummy, '\n');
+	if (!p)
 	{
 		if (!*dummy)
 			*line = ft_strndup("", 1);
@@ -23,9 +24,9 @@ static int check_newline(char **line, char **dummy, char **buf)
 	return (1);
 }
 
-static void ft_concatenate(char **dummy, char **buf, int ret)
+static void	ft_concatenate(char **dummy, char **buf, int ret)
 {
-	char *temp;
+	char	*temp;
 
 	if (!*dummy)
 	{
@@ -40,20 +41,26 @@ static void ft_concatenate(char **dummy, char **buf, int ret)
 	}
 }
 
-int get_next_line(int fd, char **line)
+int	get_next_line(int fd, char **line)
 {
-	static char *dummy;
-	char *buf;
-	int ret;
+	static char	*dummy;
+	char		*buf;
+	int			ret;
 
-	if (!line || BUFFER_SIZE <= 0 || fd < 0 || fd > OPEN_MAX - 1 || !(buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1))))
+	if (!line || BUFFER_SIZE <= 0 || fd < 0 || fd > OPEN_MAX - 1)
 		return (-1);
-	while (!(ft_strchr(dummy, '\n')) && (ret = read(fd, buf, BUFFER_SIZE)) != 0)
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buf)
+		return (-1);
+	while (!(ft_strchr(dummy, '\n')))
 	{
+		ret = read(fd, buf, BUFFER_SIZE);
+		if (ret == 0)
+			break ;
 		if (ret == -1)
 		{
 			free(buf);
-			return(-1);
+			return (-1);
 		}
 		buf[ret] = '\0';
 		ft_concatenate(&dummy, &buf, ret);

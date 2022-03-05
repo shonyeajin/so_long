@@ -4,7 +4,7 @@ OBJS=$(SRCS:%.c=%.o)
 LIBFT = libft
 
 CC=clang
-CFLAGS= -Wall -Werror -Wextra
+CFLAGS= -Wall -Werror -Wextra -g3 -fsanitize=address
 CLIB = -Lmlx -lmlx -framework OpenGL -framework Appkit -Imlx
 
 all : $(NAME)
