@@ -367,11 +367,47 @@ int	check_map(t_map *map)
 	return (1);
 }
 
+int	init_map_variable(char *name, t_map *map)
+{
+	int	fd;
+
+	fd = open(name, O_RDONLY);
+	if (fd == -1)
+		return (0);
+	map->rows = row_count_func(fd);
+	close(fd);
+	if (map->rows == 0)
+		return (0);
+	map->map = (char **)malloc(sizeof(char *) * map->rows);
+	if (!(map->map))
+		return (0);
+	fd = open(name, O_RDONLY);
+	if (fd == -1)
+	{
+		free(map->map);
+		return (0);
+	}
+	read_map(fd, map);
+	return (1);
+}
+
+void	free_func(t_map *map)
+{
+	int	i;
+
+	i = 0;
+	while (i < map->rows)
+	{
+		free(map->map[i]);
+		i++;
+	}
+	free(map->map);
+}
+
 int	check_file_name(char *name, t_map *map)
 {
 	int		leng;
 	char	*s;
-	int		fd;
 
 	leng = 0;
 	s = name;
@@ -384,39 +420,36 @@ int	check_file_name(char *name, t_map *map)
 	if (leng > 4 && s[leng - 4] == '.' && s[leng - 3] == 'b'
 		&& s[leng - 2] == 'e' && s[leng - 1] == 'r')
 	{
-		fd = open(name, O_RDONLY);
-		if (fd == -1)
+		if (!init_map_variable(name, map))
 			return (0);
-		map->rows = row_count_func(fd);
-		close(fd);
-		if (map->rows == 0)
-			return (0);
-		map->map = (char **)malloc(sizeof(char *) * map->rows);
-		if (!(map->map))
-			return (0);
-		fd = open(name, O_RDONLY);
-		if (fd == -1)
-		{
-			free(map->map);
-			return (0);
-		}
-		read_map(fd, map);
 		if (!check_map(map))
 		{
-			int	i;
-
-			i = 0;
-			while (i < map->rows)
-			{
-				free(map->map[i]);
-				i++;
-			}
-			free(map->map);
+			free_func(map);
 			return (0);
 		}
+		return (1);
 	}
 	else
 		return (0);
+}
+
+int	init_and_check(char *argv[], t_game *game)
+{
+	game->mlx = mlx_init();
+	game->map = malloc(sizeof(t_map));
+	if (!(game->map))
+	{
+		write(1, "Error\n", 6);
+		free(game);
+		return (0);
+	}
+	if (!check_file_name(argv[1], game->map))
+	{
+		write(1, "Error\n", 6);
+		free(game->map);
+		free(game);
+		return (0);
+	}
 	return (1);
 }
 
@@ -435,21 +468,8 @@ int	main(int argc, char *argv[])
 		write(1, "Error\n", 6);
 		return (0);
 	}
-	game->mlx = mlx_init();
-	game->map = malloc(sizeof(t_map));
-	if (!(game->map))
-	{
-		write(1, "Error\n", 6);
-		free(game);
+	if (!init_and_check(argv, game))
 		return (0);
-	}
-	if (!check_file_name(argv[1], game->map))
-	{
-		write(1, "Error\n", 6);
-		free(game->map);
-		free(game);
-		return (0);
-	}
 	game->map->curr_move = 0;
 	game->win = mlx_new_window(game->mlx, TILE_SIZE * game->map->cols,
 			TILE_SIZE * game->map->rows, "yshon's game");

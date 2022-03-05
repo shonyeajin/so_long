@@ -8,30 +8,29 @@
 # include "libft/libft.h"
 # define TILE_SIZE 60
 
-
-typedef struct	s_map
+typedef struct s_map
 {
-	char **map;
-	int cols;
-	int rows;
-	int curr_c;
-	int curr_r;
-	int curr_move;
-	int collect;
-}				t_map;
+	char	**map;
+	int		cols;
+	int		rows;
+	int		curr_c;
+	int		curr_r;
+	int		curr_move;
+	int		collect;
+}	t_map;
 
-typedef struct	s_game
+typedef struct s_game
 {
-	void *mlx;
-	void *win;
-	t_map *map;
-}				t_game;
+	void	*mlx;
+	void	*win;
+	t_map	*map;
+}	t_game;
 
-typedef struct	s_flag
+typedef struct s_flag
 {
-	int cflag;
-	int pflag;
-	int eflag;
-}				t_flag;
+	int	cflag;
+	int	pflag;
+	int	eflag;
+}	t_flag;
 
 #endif
